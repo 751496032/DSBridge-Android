@@ -1,25 +1,23 @@
-# DSBridge for Android
+
+# DSBridge for X5
 
 ![dsBridge](https://github.com/wendux/DSBridge-IOS/raw/master/img/dsbridge.png)
 
-[![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android)
-![language](https://img.shields.io/badge/language-Java-yellow.svg)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php)
-[![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=master)](https://travis-ci.org/wendux/DSBridge-Android)
-[![GitHub last commit](https://img.shields.io/github/last-commit/wendux/DSBridge-Android.svg?color=blue)](https://github.com/wendux/DSBridge-Android/tree/master)
-![](https://img.shields.io/badge/minSdkVersion-11-yellow.svg)
-[![x5](https://img.shields.io/badge/support%20x5-yes-blue.svg)](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
+[![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android)  ![language](https://img.shields.io/badge/language-Java-yellow.svg)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=x5-3.0)](https://travis-ci.org/wendux/DSBridge-Android)
+![minSdkVersion](https://img.shields.io/badge/minSdkVersion-11-yellow.svg)
+[![x5](https://img.shields.io/badge/webcore-tencent%20X5-blue.svg)](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
 
-> 三端易用的现代跨平台 Javascript bridge， 通过它，你可以在Javascript和原生之间同步或异步的调用彼此的函数.
+> 三端易用的现代跨平台的 Javascript bridge， 通过它，你可以在Javascript和原生之间同步或异步的调用彼此的函数.
 
+
+
+**本分支为腾讯X5内核分支, minSdkVersion为API14**
 
 ### 注意
 
 DSBridge v3.0 是一个里程碑版本，和v2.0相比，有许多变化，需要注意的是v3.0**不兼容**之前版本，但是我们也会继续维护v2.0分支，所以，如果你是v2.0的使用者，请放心继续使用v2.0，如果你是新用户，请使用>=v3.0.
 
 [DSBridge v3.0.0 更新列表](https://github.com/wendux/DSBridge-Android/issues/31)  
-腾讯X5内核支持：https://github.com/wendux/DSBridge-Android/tree/x5-3.0
-
 
 ## 特性
 
@@ -62,9 +60,7 @@ DSBridge v3.0 是一个里程碑版本，和v2.0相比，有许多变化，需�
 
    ```groovy
    dependencies {
-   	//compile 'com.github.wendux:DSBridge-Android:3.0-SNAPSHOT'
-   	//support the x5 browser core of tencent
-   	//compile 'com.github.wendux:DSBridge-Android:x5-3.0-SNAPSHOT'
+   	compile 'com.github.wendux:DSBridge-Android:x5-3.0-SNAPSHOT'
    }
    ```
 
@@ -151,13 +147,13 @@ DSBridge v3.0 是一个里程碑版本，和v2.0相比，有许多变化，需�
 
 ## Java API 签名
 
-为了兼容IOS，我们约定 Java API 签名，**注意，如果API签名不合法，则不会被调用**！签名如下：
+为了兼容IOS，我们约定 Java API 签名如下：
 
 1. 同步API.
 
    **` public any handler(Object msg) `**
 
-   参数必须是 `Object` 类型，**并且必须申明**（如果不需要参数，申明后不适用即可）。返回值类型没有限制，可以是任意类型。
+   参数必须是 `Object` 类型，但返回值类型没有限制，可以是任意类型。
 
 2. 异步 API.
 
@@ -221,13 +217,13 @@ dsBridge.call("callProgress", function (value) {
 
 ## Javascript 弹出框
 
-DSBridge已经实现了 Javascript的弹出框函数(alert/confirm/prompt)，如果你想自定义它们，通过`WebChromeClient`重写相关函数即可。DSBridge实现的对话框默认设置是模态的，这会挂起UI线程，如果你需要非模态对话框，请参考`dwebview.disableJavascriptDialogBlock(bool disable)` 。
+DSBridge已经实现了 Javascript的弹出框函数(alert/confirm/prompt)，如果你想自定义它们，通过`WebChromeClient`重写相关函数即可。DSBridge实现的对话框默认设置是模态的，这会挂起UI线程，如果你需要非模态，请参考`dwebview.disableJavascriptDialogBlock(bool disable)` 。
 
 
 
 ## 安全
 
-在Android 4.2(API17)之前 `webview.addJavascriptInterface` 存在安全漏洞，DSBridge内部在4.2以下的设备上不会使用` webview.addJavascriptInterface`，而是通过其它方式通信，在4.2之后会使用 `webview.addJavascriptInterface` 。同时，为了防止Javascript调用未授权的原生函数，所有Java API 必须有"@JavascriptInterface" 标注，所以在任何版本的Android系统下，您可以放心使用DSBridge！
+在Android 4.2(API17)之前 `webview.addJavascriptInterface` 存在安全漏洞，DSBridge内部在4.2以下的设备上不会使用`webview.addJavascriptInterface`，而是通过其它方式通信，在4.2之后会使用 `webview.addJavascriptInterface` 。同时，为了防止Javascript调用未授权的原生函数，所有Java API 必须有"@JavascriptInterface" 标注，所以您可以放心使用DSBridge。
 
 
 
@@ -326,7 +322,7 @@ dWebView.callHandler("syn.getInfo", new OnReturnValue<JSONObject>() {
 
 ##### `dwebview.disableJavascriptDialogBlock(bool disable)`
 
-**小心使用**. 如果你在javascript中调用弹窗函数(`alert`,` confirm`, 或 `prompt`)， 那么APP将会挂起，因为这些弹窗都是**模态**的，会阻塞APP主线程，此时javascript执行流也会阻塞。如果你想避免阻塞，可以通过此API禁止，禁止后，一旦 javascript中调用了这些弹窗函数，APP将弹出**非模态**对话框，并立即返回，(  `confirm` 会返回 `true`,  `prompt` 返回空字符串)。
+**小心使用**. 如果你再javascript中调用弹窗函数(`alert`,` confirm`, 或 `prompt`)， 那么APP将会挂起，因为这些弹窗都是**模态**的，会阻塞APP主线程，此时javascript执行流也会阻塞。如果你想避免阻塞，可以通过此API禁止，禁止后，一旦 javascript中调用了这些弹窗函数，APP将弹出**非模态**对话框，并立即返回，(  `confirm` 会返回 `true`,  `prompt` 返回空字符串)。
 
 禁止Javascript对话框阻塞:
 
@@ -400,7 +396,7 @@ dwebview.setJavascriptCloseWindowListener(new DWebView.JavascriptCloseWindowList
 
 ##### `dsBridge.register(methodName|namespace,function|synApiObject)`
 
-##### `dsBridge.registerAsyn(methodName|namespace,function|asynApiObject)`
+##### `dsBridge.registerAsyn(methodName|namespace,function|asyApiObject)`
 
 注册同步/异步的Javascript API. 这两个方法都有两种调用形式：
 
@@ -532,4 +528,4 @@ dsBridge.disableJavascriptDialogBlock(false)
 
 ## 最后
 
-如果你喜欢DSBridge, 欢迎star，以便更多的人知道它, 谢谢 !
+如果你瞎换 DSBridge, 欢迎star，以便更多的人知道它, 谢谢 !

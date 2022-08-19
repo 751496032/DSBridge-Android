@@ -53,24 +53,17 @@ var bridge = {
 
 !function () {
     if (window._dsf) return;
-    var _close=window.close;
     var ob = {
-        //保存JS同步方法
         _dsf: {
             _obs: {}
         },
-        //保存JS异步方法
         _dsaf: {
             _obs: {}
         },
         dscb: 0,
         dsBridge: bridge,
         close: function () {
-            if(bridge.hasNativeMethod('_dsb.closePage')){
-             bridge.call("_dsb.closePage")
-            }else{
-             _close.call(window)
-            }
+            bridge.call("_dsb.closePage")
         },
         _handleMessageFromNative: function (info) {
             var arg = JSON.parse(info.data);

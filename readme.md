@@ -1,21 +1,20 @@
 
-# DSBridge for Android
+# DSBridge for X5
 
 ![dsBridge](https://github.com/wendux/DSBridge-IOS/raw/master/img/dsbridge.png)
 
-[![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android)
-![language](https://img.shields.io/badge/language-Java-yellow.svg)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php)
-[![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=master)](https://travis-ci.org/wendux/DSBridge-Android)
-[![GitHub last commit](https://img.shields.io/github/last-commit/wendux/DSBridge-Android.svg?color=blue)](https://github.com/wendux/DSBridge-Android/tree/master)
-![](https://img.shields.io/badge/minSdkVersion-11-yellow.svg)
-[![x5](https://img.shields.io/badge/support%20x5-yes-blue.svg)](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
+[![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android)  ![language](https://img.shields.io/badge/language-Java-yellow.svg)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=x5-3.0)](https://travis-ci.org/wendux/DSBridge-Android)
+![minSdkVersion](https://img.shields.io/badge/minSdkVersion-11-yellow.svg)
+[![x5](https://img.shields.io/badge/webcore-tencent%20X5-blue.svg)](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
 
 >Modern cross-platform JavaScript bridge, through which you can invoke each other's functions synchronously or asynchronously between JavaScript and native applications.
 
-Chinese documentation [中文文档](https://github.com/wendux/DSBridge-Android/blob/master/readme-chs.md)       
+
+
+**This branch is for x5 webcore of Tencent, minSdkVersion is API14**
+
+Chinese documentation [中文文档](https://github.com/wendux/DSBridge-Android/blob/x5-3.0/readme-chs.md)       
 DSBridge-IOS：https://github.com/wendux/DSBridge-IOS       
-[Tencent x5 webcore support](https://github.com/wendux/DSBridge-Android/tree/x5-3.0)
 
 ### Notice
 
@@ -25,7 +24,7 @@ DSBridge v3.0 is a milestone version. Compared with v2.0, we have made a lot of 
 
 ## Features
 
-1. The three ends of Android, IOS and Javascript are easy to use, light and powerful, secure and strong
+1. The three ends of Android, IOS and Javascript are easy to use, light and powerful, safe and strong
 2. Both synchronous and asynchronous calls are supported
 3. Support **API Object**, which centrally implements  APIs in a Java Class or a Javascript object 
 4. Support API namespace
@@ -53,9 +52,7 @@ DSBridge v3.0 is a milestone version. Compared with v2.0, we have made a lot of 
 
    ```groovy
    dependencies {
-    //compile 'com.github.wendux:DSBridge-Android:3.0-SNAPSHOT'
-    //support the x5 browser core of Tencent
-    //compile 'com.github.wendux:DSBridge-Android:x5-3.0-SNAPSHOT'
+      compile 'com.github.wendux:DSBridge-Android:x5-3.0-SNAPSHOT'
    }
    ```
 
@@ -79,7 +76,7 @@ To use  dsBridge in your own project:
 
        //for asynchronous invocation
        @JavascriptInterface
-       public void testAsyn(Object msg, CompletionHandler handler) {
+       public void testAsyn(Object msg, CompletionHandler<String> handler) {
            handler.complete(msg+" [ asyn call]");
        }
    }
@@ -102,9 +99,9 @@ To use  dsBridge in your own project:
 
      ```javascript
      //cdn
-     //<script src="https://unpkg.com/dsbridge@3.1.3/dist/dsbridge.js"> </script>
+     //<script src="https://unpkg.com/dsbridge@3.1.1/dist/dsbridge.js"> </script>
      //npm
-     //npm install dsbridge@3.1.3
+     //npm install dsbridge@3.1.1
      var dsBridge=require("dsbridge")
      ```
 
@@ -147,7 +144,7 @@ In order to be compatible with IOS , we make the following convention  on Java A
 
    **` public any handler(Object msg) `**
 
-   The argument type must be Object and must be declared even if not need)，and the type of return value  is not limited.
+   The argument type must be Object, and the type of return value  is not limited.
 
 2. For asynchronous API.
 
@@ -213,7 +210,9 @@ For Javascript popup box functions (alert/confirm/prompt), DSBridge has implemen
 
 ## Security
 
-Before Android 4.2 (API 17), `webview.addJavascriptInterface` has security vulnerabilities, and DSBridge doesn't use it  under 4.2 of the devices. Meanwhile, in order to prevent Javascript from calling unauthorized native functions, all Java APIs must be annotated with "@JavascriptInterface" , so you can use DSBridge safely.
+Before Android 4.2 (API 17), `webview.addJavascriptInterface` has security vulnerabilities, and DSBridge doesn't use it under 4.2 of the devices. Meanwhile, in order to prevent Javascript from calling unauthorized native functions, all Java APIs must be annotated with "@JavascriptInterface" , so you can use DSBridge safely.
+
+
 
 ## DWebView
 

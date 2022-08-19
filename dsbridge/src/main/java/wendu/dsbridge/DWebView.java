@@ -1,9 +1,7 @@
 package wendu.dsbridge;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
-//import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,31 +18,35 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.ConsoleMessage;
-import android.webkit.CookieManager;
-import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
-import android.webkit.JsPromptResult;
-import android.webkit.JsResult;
-import android.webkit.PermissionRequest;
-import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebStorage;
-import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+
+import com.tencent.smtt.export.external.interfaces.ConsoleMessage;
+import com.tencent.smtt.export.external.interfaces.GeolocationPermissionsCallback;
+import com.tencent.smtt.export.external.interfaces.IX5WebChromeClient;
+import com.tencent.smtt.export.external.interfaces.JsPromptResult;
+import com.tencent.smtt.export.external.interfaces.JsResult;
+import com.tencent.smtt.sdk.CookieManager;
+import com.tencent.smtt.sdk.ValueCallback;
+import com.tencent.smtt.sdk.WebChromeClient;
+import com.tencent.smtt.sdk.WebSettings;
+import com.tencent.smtt.sdk.WebStorage;
+import com.tencent.smtt.sdk.WebView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW;
 
 
 /**
@@ -55,18 +57,18 @@ public class DWebView extends WebView {
     private static final String BRIDGE_NAME = "_dsbridge";
     private static final String LOG_TAG = "dsBridge";
     private static boolean isDebug = false;
-    private Map<String, Object> javaScriptNamespaceInterfaces = new HashMap<String, Object>();
+    private Map<String, Object> javaScriptNamespaceInterfaces = new HashMap();
     private String APP_CACHE_DIRNAME;
-    private int callID = 0;
+    int callID = 0;
     private WebChromeClient webChromeClient;
-
     private volatile boolean alertBoxBlock = true;
     private JavascriptCloseWindowListener javascriptCloseWindowListener = null;
     private ArrayList<CallInfo> callInfoList;
     private InnerJavascriptInterface innerJavascriptInterface = new InnerJavascriptInterface();
     private Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    private class InnerJavascriptInterface {
+
+    class InnerJavascriptInterface {
 
         private void PrintDebugInfo(String error) {
             Log.d(LOG_TAG, error);
@@ -93,7 +95,7 @@ public class DWebView extends WebView {
                 PrintDebugInfo(error);
                 return ret.toString();
             }
-            Object arg=null;
+            Object arg = null;
             Method method = null;
             String callback = null;
 
@@ -102,9 +104,10 @@ public class DWebView extends WebView {
                 if (args.has("_dscbstub")) {
                     callback = args.getString("_dscbstub");
                 }
-                if(args.has("data")) {
+                if (args.has("data")) {
                     arg = args.get("data");
                 }
+
             } catch (JSONException e) {
                 error = String.format("The argument of \"%s\" must be a JSON object string!", methodName);
                 PrintDebugInfo(error);
@@ -133,15 +136,12 @@ public class DWebView extends WebView {
                 return ret.toString();
             }
 
-
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
-                if (annotation == null) {
-                    error = "Method " + methodName + " is not invoked, since  " +
-                            "it is not declared with JavascriptInterface annotation! ";
-                    PrintDebugInfo(error);
-                    return ret.toString();
-                }
+            JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
+            if (annotation == null) {
+                error = "Method " + methodName + " is not invoked, since  " +
+                        "it is not declared with JavascriptInterface annotation! ";
+                PrintDebugInfo(error);
+                return ret.toString();
             }
 
             Object retData;
@@ -178,7 +178,6 @@ public class DWebView extends WebView {
                                     if (complete) {
                                         script += "delete window." + cb;
                                     }
-                                    //Log.d(LOG_TAG, "complete " + script);
                                     evaluateJavascript(script);
                                 }
                             } catch (Exception e) {
@@ -203,6 +202,7 @@ public class DWebView extends WebView {
 
     }
 
+
     Map<Integer, OnReturnValue> handlerMap = new HashMap<>();
 
     public interface JavascriptCloseWindowListener {
@@ -211,7 +211,6 @@ public class DWebView extends WebView {
          */
         boolean onClose();
     }
-
 
     @Deprecated
     public interface FileChooser {
@@ -246,14 +245,14 @@ public class DWebView extends WebView {
         isDebug = enabled;
     }
 
-    @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
+    @Keep
     private void init() {
         APP_CACHE_DIRNAME = getContext().getFilesDir().getAbsolutePath() + "/webcache";
         WebSettings settings = getSettings();
         settings.setDomStorageEnabled(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             CookieManager.getInstance().setAcceptThirdPartyCookies(this, true);
-            settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+            settings.setMixedContentMode(MIXED_CONTENT_ALWAYS_ALLOW);
         }
         settings.setAllowFileAccess(false);
         settings.setAppCacheEnabled(false);
@@ -267,11 +266,11 @@ public class DWebView extends WebView {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
             super.addJavascriptInterface(innerJavascriptInterface, BRIDGE_NAME);
         } else {
-            // add dsbridge tag in lower android version
+            // add bridge tag in lower android version
             settings.setUserAgentString(settings.getUserAgentString() + " _dsbridge");
         }
-    }
 
+    }
 
     private String[] parseNamespace(String method) {
         int pos = method.lastIndexOf('.');
@@ -290,6 +289,7 @@ public class DWebView extends WebView {
             @Keep
             @JavascriptInterface
             public boolean hasNativeMethod(Object args) throws JSONException {
+
                 JSONObject jsonObject = (JSONObject) args;
                 String methodName = jsonObject.getString("name").trim();
                 String type = jsonObject.getString("type").trim();
@@ -311,16 +311,12 @@ public class DWebView extends WebView {
                         }
                     }
                     if (method != null) {
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                            JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
-                            if (annotation == null) {
-                                return false;
+                        JavascriptInterface annotation = method.getAnnotation(JavascriptInterface.class);
+                        if (annotation != null) {
+                            if ("all".equals(type) || (asyn && "asyn".equals(type) || (!asyn && "syn".equals(type)))) {
+                                return true;
                             }
                         }
-                        if ("all".equals(type) || (asyn && "asyn".equals(type) || (!asyn && "syn".equals(type)))) {
-                            return true;
-                        }
-
                     }
                 }
                 return false;
@@ -336,7 +332,7 @@ public class DWebView extends WebView {
                                 || javascriptCloseWindowListener.onClose()) {
                             Context context = getContext();
                             if (context instanceof Activity) {
-                                ((Activity)context).onBackPressed();
+                                ((Activity) getContext()).onBackPressed();
                             }
                         }
                     }
@@ -359,7 +355,7 @@ public class DWebView extends WebView {
 
             @Keep
             @JavascriptInterface
-            public void returnValue(final Object obj){
+            public void returnValue(final Object obj) throws JSONException {
                 runOnMainThread(new Runnable() {
                     @Override
                     public void run() {
@@ -422,12 +418,8 @@ public class DWebView extends WebView {
         runOnMainThread(new Runnable() {
             @Override
             public void run() {
-                if (url != null && url.startsWith("javascript:")){
-                    DWebView.super.loadUrl(url);
-                }else{
-                    callInfoList = new ArrayList<>();
-                    DWebView.super.loadUrl(url);
-                }
+                callInfoList = new ArrayList<>();
+                DWebView.super.loadUrl(url);
             }
         });
     }
@@ -444,12 +436,8 @@ public class DWebView extends WebView {
         runOnMainThread(new Runnable() {
             @Override
             public void run() {
-                if (url != null && url.startsWith("javascript:")){
-                    DWebView.super.loadUrl(url, additionalHttpHeaders);
-                }else{
-                    callInfoList = new ArrayList<>();
-                    DWebView.super.loadUrl(url, additionalHttpHeaders);
-                }
+                callInfoList = new ArrayList<>();
+                DWebView.super.loadUrl(url, additionalHttpHeaders);
             }
         });
     }
@@ -473,12 +461,8 @@ public class DWebView extends WebView {
     }
 
 
-    private static class CallInfo {
-        private String data;
-        private int callbackId;
-        private String method;
-
-        CallInfo(String handlerName, int id, Object[] args) {
+    private class CallInfo {
+        public CallInfo(String handlerName, int id, Object[] args) {
             if (args == null) args = new Object[0];
             data = new JSONArray(Arrays.asList(args)).toString();
             callbackId = id;
@@ -497,6 +481,10 @@ public class DWebView extends WebView {
             }
             return jo.toString();
         }
+
+        public String data = null;
+        public int callbackId;
+        public String method;
     }
 
     private synchronized void dispatchStartupQueue() {
@@ -514,7 +502,7 @@ public class DWebView extends WebView {
 
     public synchronized <T> void callHandler(String method, Object[] args, final OnReturnValue<T> handler) {
 
-        CallInfo callInfo = new CallInfo(method, ++callID, args);
+        CallInfo callInfo = new CallInfo(method, callID++, args);
         if (handler != null) {
             handlerMap.put(callInfo.callbackId, handler);
         }
@@ -624,7 +612,7 @@ public class DWebView extends WebView {
         }
 
         @Override
-        public void onShowCustomView(View view, CustomViewCallback callback) {
+        public void onShowCustomView(View view, IX5WebChromeClient.CustomViewCallback callback) {
             if (webChromeClient != null) {
                 webChromeClient.onShowCustomView(view, callback);
             } else {
@@ -632,9 +620,9 @@ public class DWebView extends WebView {
             }
         }
 
-        @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+        @Override
         public void onShowCustomView(View view, int requestedOrientation,
-                                     CustomViewCallback callback) {
+                                     IX5WebChromeClient.CustomViewCallback callback) {
             if (webChromeClient != null) {
                 webChromeClient.onShowCustomView(view, requestedOrientation, callback);
             } else {
@@ -679,8 +667,10 @@ public class DWebView extends WebView {
             }
         }
 
+
         @Override
         public boolean onJsAlert(WebView view, String url, final String message, final JsResult result) {
+
             if (!alertBoxBlock) {
                 result.confirm();
             }
@@ -827,7 +817,7 @@ public class DWebView extends WebView {
         }
 
         @Override
-        public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
+        public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissionsCallback callback) {
             if (webChromeClient != null) {
                 webChromeClient.onGeolocationPermissionsShowPrompt(origin, callback);
             } else {
@@ -845,26 +835,6 @@ public class DWebView extends WebView {
         }
 
 
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-        public void onPermissionRequest(PermissionRequest request) {
-            if (webChromeClient != null) {
-                webChromeClient.onPermissionRequest(request);
-            } else {
-                super.onPermissionRequest(request);
-            }
-        }
-
-
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-        @Override
-        public void onPermissionRequestCanceled(PermissionRequest request) {
-            if (webChromeClient != null) {
-                webChromeClient.onPermissionRequestCanceled(request);
-            } else {
-                super.onPermissionRequestCanceled(request);
-            }
-        }
-
         @Override
         public boolean onJsTimeout() {
             if (webChromeClient != null) {
@@ -873,14 +843,6 @@ public class DWebView extends WebView {
             return super.onJsTimeout();
         }
 
-        @Override
-        public void onConsoleMessage(String message, int lineNumber, String sourceID) {
-            if (webChromeClient != null) {
-                webChromeClient.onConsoleMessage(message, lineNumber, sourceID);
-            } else {
-                super.onConsoleMessage(message, lineNumber, sourceID);
-            }
-        }
 
         @Override
         public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
@@ -916,8 +878,16 @@ public class DWebView extends WebView {
             }
         }
 
+        @Override
+        public void openFileChooser(ValueCallback<Uri> valueCallback, String s, String s1) {
+            if (webChromeClient != null) {
+                webChromeClient.openFileChooser(valueCallback, s, s1);
+                return;
+            }
+            super.openFileChooser(valueCallback, s, s1);
+        }
 
-        @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+        @Override
         public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
                                          FileChooserParams fileChooserParams) {
             if (webChromeClient != null) {
@@ -932,16 +902,6 @@ public class DWebView extends WebView {
         public void openFileChooser(ValueCallback valueCallback, String acceptType) {
             if (webChromeClient instanceof FileChooser) {
                 ((FileChooser) webChromeClient).openFileChooser(valueCallback, acceptType);
-            }
-        }
-
-
-        @Keep
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-        public void openFileChooser(ValueCallback<Uri> valueCallback,
-                                    String acceptType, String capture) {
-            if (webChromeClient instanceof FileChooser) {
-                ((FileChooser) webChromeClient).openFileChooser(valueCallback, acceptType, capture);
             }
         }
 
@@ -995,8 +955,6 @@ public class DWebView extends WebView {
         }
         mainHandler.post(runnable);
     }
-
-
 
 
 }
