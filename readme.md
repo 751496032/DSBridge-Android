@@ -1,6 +1,8 @@
 
 # DSBridge for X5
 
+此项目是基于![DSBridge-Android](https://github.com/wendux/DSBridge-Android)上修改，主要升级SDK、X5内核版本，处理仓库地址失效问题。
+
 ![dsBridge](https://github.com/wendux/DSBridge-IOS/raw/master/img/dsbridge.png)
 
 [![](https://jitpack.io/v/wendux/DSBridge-Android.svg)](https://jitpack.io/#wendux/DSBridge-Android)  ![language](https://img.shields.io/badge/language-Java-yellow.svg)  [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://opensource.org/licenses/mit-license.php) [![](https://travis-ci.org/wendux/DSBridge-Android.svg?branch=x5-3.0)](https://travis-ci.org/wendux/DSBridge-Android)
@@ -52,7 +54,7 @@ DSBridge v3.0 is a milestone version. Compared with v2.0, we have made a lot of 
 
    ```groovy
    dependencies {
-      compile 'com.github.wendux:DSBridge-Android:x5-3.0-SNAPSHOT'
+      implementation 'com.github.751496032:DSBridge-Android:v1.0.0'
    }
    ```
 
